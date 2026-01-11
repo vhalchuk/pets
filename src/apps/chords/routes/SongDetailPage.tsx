@@ -1,9 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  createFileRoute,
-  useNavigate,
-  useParams,
-} from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import {
   AArrowDown,
   AArrowUp,
@@ -14,20 +10,20 @@ import {
   Loader2,
   Minus,
   Plus,
+  Edit,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useSong } from '@/hooks/useSongs';
+import { useSong } from '../hooks/useSongs';
 import {
   parseLyricsWithChords,
   parseLyricsWithoutChords,
-} from '@/lib/chordParser';
+} from '../lib/chordParser';
 
-export const Route = createFileRoute('/songs/$songId')({
-  component: SongDetail,
-});
+interface SongDetailPageProps {
+  songId: string;
+}
 
-function SongDetail() {
-  const { songId } = useParams({ from: '/songs/$songId' });
+export function SongDetailPage({ songId }: SongDetailPageProps) {
   const navigate = useNavigate();
   const { data: song, isLoading, error } = useSong(songId);
   const [fontSize, setFontSize] = useState(() => {
@@ -110,7 +106,11 @@ function SongDetail() {
   }, [song, transpositionSemitones, showChords]);
 
   const handleBackToSongs = () => {
-    navigate({ to: '/songs' });
+    navigate({ to: '/chords' });
+  };
+
+  const handleEdit = () => {
+    navigate({ to: '/chords/$id/edit', params: { id: songId } });
   };
 
   const decreaseFontSize = () => {
@@ -252,6 +252,11 @@ function SongDetail() {
               {/* Second Row - Expanded Controls */}
               {showExpandedControls && (
                 <div className="flex items-center gap-3 sm:gap-6 justify-end">
+                  <Button onClick={handleEdit} variant="outline" size="sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    <span className="hidden sm:inline">Edit</span>
+                  </Button>
+
                   {/* Capo Dropdown - Only show when chords are visible */}
                   {showChords && (
                     <div className="relative">

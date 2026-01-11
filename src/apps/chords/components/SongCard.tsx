@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import type { Song } from '@/types/song';
+import type { Song } from '../types/song';
 
 interface SongCardProps {
   song: Song;

@@ -1,25 +1,16 @@
-import {
-  createFileRoute,
-  Link,
-  useNavigate,
-  Outlet,
-} from '@tanstack/react-router';
+import { Link, useNavigate, Outlet } from '@tanstack/react-router';
 import { Loader2, Music, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { SongList } from '@/components/SongList';
-import { useSongs } from '@/hooks/useSongs';
-import type { Song } from '@/types/song';
+import { SongList } from '../components/SongList';
+import { useSongs } from '../hooks/useSongs';
+import type { Song } from '../types/song';
 
-export const Route = createFileRoute('/songs')({
-  component: SongsPage,
-});
-
-function SongsPage() {
+export function SongListPage() {
   const navigate = useNavigate();
   const { data: songs = [], isLoading, error } = useSongs();
 
   const handleSongSelect = (song: Song) => {
-    navigate({ to: '/songs/$songId', params: { songId: song.id } });
+    navigate({ to: '/chords/$id', params: { id: song.id } });
   };
 
   return (
@@ -86,7 +77,7 @@ function SongsPage() {
 
           {/* Footer */}
           <div className="text-center text-sm text-muted-foreground mt-12 space-y-4">
-            <Link to="/editor">
+            <Link to="/chords/new">
               <Button variant="outline" size="sm">
                 Create New Song
               </Button>

@@ -1,5 +1,5 @@
-import { SongCard } from '@/components/SongCard';
-import type { Song } from '@/types/song';
+import { SongCard } from './SongCard';
+import type { Song } from '../types/song';
 
 interface SongListProps {
   songs: Song[];

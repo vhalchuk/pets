@@ -12,7 +12,7 @@ import {
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Song } from '../types/song';
+import type { Song } from '../apps/chords/types/song';
 
 const SONGS_COLLECTION = 'songs';
 

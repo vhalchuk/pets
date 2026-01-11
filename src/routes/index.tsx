@@ -6,8 +6,8 @@ export const Route = createFileRoute('/')({
 
 const projects = [
   {
-    name: 'songs',
-    path: '/songs',
+    name: 'chords',
+    path: '/chords',
     description: 'Music theory and chord progression tool',
   },
   // Add more projects here as you create them

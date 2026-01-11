@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { firestoreApi } from '../lib/firestore';
+import { firestoreApi } from '@/lib/firestore';
 
 // Query keys
 export const songKeys = {

@@ -1,29 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { createFileRoute, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { ArrowLeft, Check, Copy, Trash2, Save } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { parseLyricsWithChords } from '@/lib/chordParser';
+import { parseLyricsWithChords } from '../lib/chordParser';
 import { firestoreApi } from '@/lib/firestore';
+import { useSong } from '../hooks/useSongs';
+import { Loader2 } from 'lucide-react';
 
-export const Route = createFileRoute('/editor')({
-  component: Editor,
-});
+interface SongEditorPageProps {
+  songId?: string; // If provided, we're in edit mode
+}
 
-function Editor() {
+export function SongEditorPage({ songId }: SongEditorPageProps) {
   const navigate = useNavigate();
+  const isEditMode = !!songId;
+  const { data: existingSong, isLoading: isLoadingSong } = useSong(
+    songId || ''
+  );
+
   const [songData, setSongData] = useState(() => {
-    // Load from localStorage or use default values
-    const saved = localStorage.getItem('song-editor-data');
-    return saved
-      ? JSON.parse(saved)
-      : {
-          title: '',
-          artist: '',
-          lyrics: '',
-        };
+    // For create mode, load from localStorage or use defaults
+    if (!isEditMode) {
+      const saved = localStorage.getItem('song-editor-data');
+      return saved
+        ? JSON.parse(saved)
+        : {
+            title: '',
+            artist: '',
+            lyrics: '',
+          };
+    }
+    // For edit mode, will be initialized from existingSong in useEffect
+    return {
+      title: '',
+      artist: '',
+      lyrics: '',
+    };
   });
+
+  // Initialize songData from existingSong when in edit mode
+  useEffect(() => {
+    if (isEditMode && existingSong) {
+      setSongData({
+        title: existingSong.title,
+        artist: existingSong.artist,
+        lyrics: existingSong.lyrics,
+      });
+    }
+  }, [isEditMode, existingSong]);
+
   const [isCopied, setIsCopied] = useState(false);
   const [isCleared, setIsCleared] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -40,10 +67,12 @@ function Editor() {
     }));
   };
 
-  // Save to localStorage whenever songData changes
+  // Save to localStorage whenever songData changes (only in create mode)
   useEffect(() => {
-    localStorage.setItem('song-editor-data', JSON.stringify(songData));
-  }, [songData]);
+    if (!isEditMode) {
+      localStorage.setItem('song-editor-data', JSON.stringify(songData));
+    }
+  }, [songData, isEditMode]);
 
   const handleClearAll = () => {
     setSongData({
@@ -79,17 +108,33 @@ function Editor() {
     setSaveError(null);
 
     try {
-      const savedSong = await firestoreApi.createSong({
-        title: songData.title.trim(),
-        artist: songData.artist.trim(),
-        lyrics: songData.lyrics.trim(),
-      });
+      if (isEditMode && songId) {
+        // Update existing song
+        await firestoreApi.updateSong(songId, {
+          title: songData.title.trim(),
+          artist: songData.artist.trim(),
+          lyrics: songData.lyrics.trim(),
+        });
 
-      setSaveSuccess(true);
-      setTimeout(() => {
-        setSaveSuccess(false);
-        navigate({ to: '/songs/$songId', params: { songId: savedSong.id } });
-      }, 1000);
+        setSaveSuccess(true);
+        setTimeout(() => {
+          setSaveSuccess(false);
+          navigate({ to: '/chords/$id', params: { id: songId } });
+        }, 1000);
+      } else {
+        // Create new song
+        const savedSong = await firestoreApi.createSong({
+          title: songData.title.trim(),
+          artist: songData.artist.trim(),
+          lyrics: songData.lyrics.trim(),
+        });
+
+        setSaveSuccess(true);
+        setTimeout(() => {
+          setSaveSuccess(false);
+          navigate({ to: '/chords/$id', params: { id: savedSong.id } });
+        }, 1000);
+      }
     } catch (error) {
       console.error('Failed to save song:', error);
       setSaveError(
@@ -102,8 +147,31 @@ function Editor() {
   };
 
   const handleBackToSongs = () => {
-    navigate({ to: '/songs' });
+    navigate({ to: '/chords' });
   };
+
+  // Show loading state when in edit mode and song is still loading
+  if (isEditMode && isLoadingSong) {
+    return (
+      <div className="text-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+        <p className="text-muted-foreground">Loading song...</p>
+      </div>
+    );
+  }
+
+  // Show error state if song not found in edit mode
+  if (isEditMode && !existingSong && !isLoadingSong) {
+    return (
+      <div className="text-center py-12">
+        <h2 className="text-2xl font-semibold mb-4">Song Not Found</h2>
+        <p className="text-muted-foreground mb-6">
+          The song you're trying to edit doesn't exist.
+        </p>
+        <Button onClick={handleBackToSongs}>← Back to Songs</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,7 +187,7 @@ function Editor() {
 
           {/* Page Title */}
           <h1 className="text-3xl font-bold text-center text-foreground">
-            Song Editor
+            {isEditMode ? 'Edit Song' : 'Song Editor'}
           </h1>
         </div>
 
@@ -144,7 +212,7 @@ function Editor() {
             ) : (
               <>
                 <Save className="h-4 w-4 mr-2" />
-                Save to Firestore
+                {isEditMode ? 'Update Song' : 'Save to Firestore'}
               </>
             )}
           </Button>
