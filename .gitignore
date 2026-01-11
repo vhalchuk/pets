@@ -25,3 +25,6 @@ dist-ssr
 
 .firebase/*.cache
 .tanstack/tmp
+
+# Generated files
+src/routeTree.gen.ts
