@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { parseLyricsWithChords } from '../lib/chordParser';
 import { firestoreApi } from '@/lib/firestore';
 import { useSong, songKeys } from '../hooks/useSongs';
+import type { Song } from '../types/song';
 import { Loader2 } from 'lucide-react';
 
 interface SongEditorPageProps {
@@ -111,14 +112,36 @@ export function SongEditorPage({ songId }: SongEditorPageProps) {
 
     try {
       if (isEditMode && songId) {
-        // Update existing song
+        // Optimistically update the cache
+        const updatedSong = {
+          id: songId,
+          title: songData.title.trim(),
+          artist: songData.artist.trim(),
+          lyrics: songData.lyrics.trim(),
+        };
+
+        // Update detail cache optimistically
+        queryClient.setQueryData(songKeys.detail(songId), updatedSong);
+
+        // Update list cache optimistically
+        queryClient.setQueryData(
+          songKeys.lists(),
+          (oldSongs: Song[] | undefined) => {
+            if (!oldSongs) return oldSongs;
+            return oldSongs.map((song) =>
+              song.id === songId ? updatedSong : song
+            );
+          }
+        );
+
+        // Update the song in Firestore
         await firestoreApi.updateSong(songId, {
           title: songData.title.trim(),
           artist: songData.artist.trim(),
           lyrics: songData.lyrics.trim(),
         });
 
-        // Invalidate queries to refresh the data
+        // Invalidate queries to ensure consistency with server
         queryClient.invalidateQueries({ queryKey: songKeys.lists() });
         queryClient.invalidateQueries({ queryKey: songKeys.detail(songId) });
 
