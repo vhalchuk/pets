@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Check, Copy, Trash2, Save } from 'lucide-react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { parseLyricsWithChords } from '../lib/chordParser';
 import { firestoreApi } from '@/lib/firestore';
-import { useSong } from '../hooks/useSongs';
+import { useSong, songKeys } from '../hooks/useSongs';
 import { Loader2 } from 'lucide-react';
 
 interface SongEditorPageProps {
@@ -15,6 +16,7 @@ interface SongEditorPageProps {
 
 export function SongEditorPage({ songId }: SongEditorPageProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const isEditMode = !!songId;
   const { data: existingSong, isLoading: isLoadingSong } = useSong(
     songId || ''
@@ -116,6 +118,10 @@ export function SongEditorPage({ songId }: SongEditorPageProps) {
           lyrics: songData.lyrics.trim(),
         });
 
+        // Invalidate queries to refresh the data
+        queryClient.invalidateQueries({ queryKey: songKeys.lists() });
+        queryClient.invalidateQueries({ queryKey: songKeys.detail(songId) });
+
         setSaveSuccess(true);
         setTimeout(() => {
           setSaveSuccess(false);
@@ -128,6 +134,9 @@ export function SongEditorPage({ songId }: SongEditorPageProps) {
           artist: songData.artist.trim(),
           lyrics: songData.lyrics.trim(),
         });
+
+        // Invalidate queries to refresh the data
+        queryClient.invalidateQueries({ queryKey: songKeys.lists() });
 
         setSaveSuccess(true);
         setTimeout(() => {
