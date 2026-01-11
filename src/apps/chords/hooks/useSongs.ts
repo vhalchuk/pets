@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { firestoreApi } from '@/lib/firestore';
+import type { Song } from '../types/song';
 
 // Query keys
 export const songKeys = {
@@ -11,10 +13,22 @@ export const songKeys = {
 
 // Hooks for fetching songs
 export function useSongs() {
-  return useQuery({
+  const queryClient = useQueryClient();
+  const query = useQuery({
     queryKey: songKeys.lists(),
     queryFn: firestoreApi.getSongs,
   });
+
+  // Populate detail cache for each song when list is fetched
+  useEffect(() => {
+    if (query.data) {
+      query.data.forEach((song: Song) => {
+        queryClient.setQueryData(songKeys.detail(song.id), song);
+      });
+    }
+  }, [query.data, queryClient]);
+
+  return query;
 }
 
 export function useSong(id: string) {
