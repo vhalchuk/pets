@@ -11,7 +11,9 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "deploy": "pnpm build && npx firebase-tools deploy --only hosting",
+    "deploy:hosting": "npx firebase-tools deploy --only hosting"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
