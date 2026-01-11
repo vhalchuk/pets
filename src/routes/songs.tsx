@@ -5,6 +5,7 @@ import {
   Outlet,
 } from '@tanstack/react-router';
 import { Loader2, Music, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { SongList } from '@/components/SongList';
 import { useSongs } from '@/hooks/useSongs';
 import type { Song } from '@/types/song';
@@ -85,7 +86,14 @@ function SongsPage() {
 
           {/* Footer */}
           <div className="text-center text-sm text-muted-foreground mt-12 space-y-4">
-            <p>Built with React, TypeScript, Tailwind CSS, and Firebase</p>
+            <Link to="/editor">
+              <Button variant="outline" size="sm">
+                Create New Song
+              </Button>
+            </Link>
+            <p className="mt-4">
+              Built with React, TypeScript, Tailwind CSS, and Firebase
+            </p>
           </div>
         </div>
       </div>

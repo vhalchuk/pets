@@ -8,132 +8,163 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as SongsRouteImport } from './routes/songs'
-import { Route as ProjectRouteImport } from './routes/$project'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as ChordsIndexRouteImport } from './routes/chords/index'
-import { Route as SongsSongIdRouteImport } from './routes/songs.$songId'
+import { Route as rootRouteImport } from './routes/__root';
+import { Route as SongsRouteImport } from './routes/songs';
+import { Route as EditorRouteImport } from './routes/editor';
+import { Route as ProjectRouteImport } from './routes/$project';
+import { Route as IndexRouteImport } from './routes/index';
+import { Route as ChordsIndexRouteImport } from './routes/chords/index';
+import { Route as SongsSongIdRouteImport } from './routes/songs.$songId';
 
 const SongsRoute = SongsRouteImport.update({
   id: '/songs',
   path: '/songs',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
+const EditorRoute = EditorRouteImport.update({
+  id: '/editor',
+  path: '/editor',
+  getParentRoute: () => rootRouteImport,
+} as any);
 const ProjectRoute = ProjectRouteImport.update({
   id: '/$project',
   path: '/$project',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const ChordsIndexRoute = ChordsIndexRouteImport.update({
   id: '/chords/',
   path: '/chords/',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const SongsSongIdRoute = SongsSongIdRouteImport.update({
   id: '/$songId',
   path: '/$songId',
   getParentRoute: () => SongsRoute,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/$project': typeof ProjectRoute
-  '/songs': typeof SongsRouteWithChildren
-  '/songs/$songId': typeof SongsSongIdRoute
-  '/chords': typeof ChordsIndexRoute
+  '/': typeof IndexRoute;
+  '/$project': typeof ProjectRoute;
+  '/editor': typeof EditorRoute;
+  '/songs': typeof SongsRouteWithChildren;
+  '/songs/$songId': typeof SongsSongIdRoute;
+  '/chords': typeof ChordsIndexRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/$project': typeof ProjectRoute
-  '/songs': typeof SongsRouteWithChildren
-  '/songs/$songId': typeof SongsSongIdRoute
-  '/chords': typeof ChordsIndexRoute
+  '/': typeof IndexRoute;
+  '/$project': typeof ProjectRoute;
+  '/editor': typeof EditorRoute;
+  '/songs': typeof SongsRouteWithChildren;
+  '/songs/$songId': typeof SongsSongIdRoute;
+  '/chords': typeof ChordsIndexRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/$project': typeof ProjectRoute
-  '/songs': typeof SongsRouteWithChildren
-  '/songs/$songId': typeof SongsSongIdRoute
-  '/chords/': typeof ChordsIndexRoute
+  __root__: typeof rootRouteImport;
+  '/': typeof IndexRoute;
+  '/$project': typeof ProjectRoute;
+  '/editor': typeof EditorRoute;
+  '/songs': typeof SongsRouteWithChildren;
+  '/songs/$songId': typeof SongsSongIdRoute;
+  '/chords/': typeof ChordsIndexRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/$project' | '/songs' | '/songs/$songId' | '/chords'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/$project' | '/songs' | '/songs/$songId' | '/chords'
-  id: '__root__' | '/' | '/$project' | '/songs' | '/songs/$songId' | '/chords/'
-  fileRoutesById: FileRoutesById
+  fileRoutesByFullPath: FileRoutesByFullPath;
+  fullPaths:
+    | '/'
+    | '/$project'
+    | '/editor'
+    | '/songs'
+    | '/songs/$songId'
+    | '/chords';
+  fileRoutesByTo: FileRoutesByTo;
+  to: '/' | '/$project' | '/editor' | '/songs' | '/songs/$songId' | '/chords';
+  id:
+    | '__root__'
+    | '/'
+    | '/$project'
+    | '/editor'
+    | '/songs'
+    | '/songs/$songId'
+    | '/chords/';
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  ProjectRoute: typeof ProjectRoute
-  SongsRoute: typeof SongsRouteWithChildren
-  ChordsIndexRoute: typeof ChordsIndexRoute
+  IndexRoute: typeof IndexRoute;
+  ProjectRoute: typeof ProjectRoute;
+  EditorRoute: typeof EditorRoute;
+  SongsRoute: typeof SongsRouteWithChildren;
+  ChordsIndexRoute: typeof ChordsIndexRoute;
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
     '/songs': {
-      id: '/songs'
-      path: '/songs'
-      fullPath: '/songs'
-      preLoaderRoute: typeof SongsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/songs';
+      path: '/songs';
+      fullPath: '/songs';
+      preLoaderRoute: typeof SongsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    '/editor': {
+      id: '/editor';
+      path: '/editor';
+      fullPath: '/editor';
+      preLoaderRoute: typeof EditorRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/$project': {
-      id: '/$project'
-      path: '/$project'
-      fullPath: '/$project'
-      preLoaderRoute: typeof ProjectRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/$project';
+      path: '/$project';
+      fullPath: '/$project';
+      preLoaderRoute: typeof ProjectRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/';
+      path: '/';
+      fullPath: '/';
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/chords/': {
-      id: '/chords/'
-      path: '/chords'
-      fullPath: '/chords'
-      preLoaderRoute: typeof ChordsIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
+      id: '/chords/';
+      path: '/chords';
+      fullPath: '/chords';
+      preLoaderRoute: typeof ChordsIndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     '/songs/$songId': {
-      id: '/songs/$songId'
-      path: '/$songId'
-      fullPath: '/songs/$songId'
-      preLoaderRoute: typeof SongsSongIdRouteImport
-      parentRoute: typeof SongsRoute
-    }
+      id: '/songs/$songId';
+      path: '/$songId';
+      fullPath: '/songs/$songId';
+      preLoaderRoute: typeof SongsSongIdRouteImport;
+      parentRoute: typeof SongsRoute;
+    };
   }
 }
 
 interface SongsRouteChildren {
-  SongsSongIdRoute: typeof SongsSongIdRoute
+  SongsSongIdRoute: typeof SongsSongIdRoute;
 }
 
 const SongsRouteChildren: SongsRouteChildren = {
   SongsSongIdRoute: SongsSongIdRoute,
-}
+};
 
-const SongsRouteWithChildren = SongsRoute._addFileChildren(SongsRouteChildren)
+const SongsRouteWithChildren = SongsRoute._addFileChildren(SongsRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ProjectRoute: ProjectRoute,
+  EditorRoute: EditorRoute,
   SongsRoute: SongsRouteWithChildren,
   ChordsIndexRoute: ChordsIndexRoute,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
