@@ -273,13 +273,13 @@ export function SPRPage() {
   );
 
   const handleSkipBack = useCallback(
-    () => actions.skipBy(-settings.skipSize),
-    [actions, settings.skipSize]
+    () => actions.skipToPreviousSentence(),
+    [actions]
   );
 
   const handleSkipForward = useCallback(
-    () => actions.skipBy(settings.skipSize),
-    [actions, settings.skipSize]
+    () => actions.skipToNextSentence(),
+    [actions]
   );
 
   useEffect(() => {
@@ -296,14 +296,14 @@ export function SPRPage() {
       } else if (event.key === 'ArrowLeft') {
         event.preventDefault();
         if (event.shiftKey) {
-          actions.skipBy(-settings.skipSize);
+          actions.skipToPreviousSentence();
         } else {
           actions.previous();
         }
       } else if (event.key === 'ArrowRight') {
         event.preventDefault();
         if (event.shiftKey) {
-          actions.skipBy(settings.skipSize);
+          actions.skipToNextSentence();
         } else {
           actions.next();
         }
@@ -386,7 +386,6 @@ export function SPRPage() {
             <Controls
               status={state.status}
               canPlay={canPlay}
-              skipSize={settings.skipSize}
               wpm={settings.wpm}
               minWpm={settings.minWpm}
               maxWpm={settings.maxWpm}

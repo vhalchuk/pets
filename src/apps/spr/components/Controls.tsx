@@ -15,7 +15,6 @@ import type { PlayerStatus } from '../types';
 interface ControlsProps {
   status: PlayerStatus;
   canPlay: boolean;
-  skipSize: number;
   wpm: number;
   minWpm: number;
   maxWpm: number;
@@ -37,7 +36,6 @@ interface ControlsProps {
 export function Controls({
   status,
   canPlay,
-  skipSize,
   wpm,
   minWpm,
   maxWpm,
@@ -65,7 +63,6 @@ export function Controls({
         isPlaying={isPlaying}
         isCountdown={isCountdown}
         canPlay={canPlay}
-        skipSize={skipSize}
         onPlay={onPlay}
         onPause={onPause}
         onRestart={onRestart}
@@ -100,7 +97,6 @@ interface TransportControlsProps {
   isPlaying: boolean;
   isCountdown: boolean;
   canPlay: boolean;
-  skipSize: number;
   onPlay: () => void;
   onPause: () => void;
   onRestart: () => void;
@@ -114,7 +110,6 @@ const TransportControls = memo(function TransportControls({
   isPlaying,
   isCountdown,
   canPlay,
-  skipSize,
   onPlay,
   onPause,
   onRestart,
@@ -124,80 +119,84 @@ const TransportControls = memo(function TransportControls({
   onSkipForward,
 }: TransportControlsProps) {
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onPrevious}
-        disabled={!canPlay}
-        aria-label="Previous word"
-        title="Previous word (Shortcut: ←)"
-      >
-        <SkipBack className="h-4 w-4" />
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onSkipBack}
-        disabled={!canPlay}
-        aria-label={`Skip back ${skipSize} words`}
-        title={`Skip back ${skipSize} words (Shortcut: Shift+←)`}
-      >
-        <Rewind className="h-4 w-4 mr-2" />-{skipSize}
-      </Button>
-      <Button
-        onClick={isPlaying || isCountdown ? onPause : onPlay}
-        disabled={!canPlay}
-        aria-label={isPlaying || isCountdown ? 'Pause' : 'Play'}
-        title={
-          isPlaying || isCountdown
-            ? 'Pause (Shortcut: Space)'
-            : 'Play (Shortcut: Space)'
-        }
-      >
-        {isPlaying || isCountdown ? (
-          <>
-            <Pause className="h-4 w-4 mr-2" />
-            Pause
-          </>
-        ) : (
-          <>
-            <Play className="h-4 w-4 mr-2" />
-            Play
-          </>
-        )}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onRestart}
-        disabled={!canPlay}
-        aria-label="Restart"
-        title="Restart (Shortcut: R)"
-      >
-        <RotateCcw className="h-4 w-4 mr-2" />
-        Restart
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onSkipForward}
-        disabled={!canPlay}
-        aria-label={`Skip forward ${skipSize} words`}
-        title={`Skip forward ${skipSize} words (Shortcut: Shift+→)`}
-      >
-        <FastForward className="h-4 w-4 mr-2" />+{skipSize}
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onNext}
-        disabled={!canPlay}
-        aria-label="Next word"
-        title="Next word (Shortcut: →)"
-      >
-        <SkipForward className="h-4 w-4" />
-      </Button>
+    <div className="flex w-full items-center justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onSkipBack}
+          disabled={!canPlay}
+          aria-label="Previous sentence"
+          title="Previous sentence (Shortcut: Shift+←)"
+        >
+          <Rewind className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrevious}
+          disabled={!canPlay}
+          aria-label="Previous word"
+          title="Previous word (Shortcut: ←)"
+        >
+          <SkipBack className="h-4 w-4" />
+        </Button>
+        <Button
+          onClick={isPlaying || isCountdown ? onPause : onPlay}
+          disabled={!canPlay}
+          aria-label={isPlaying || isCountdown ? 'Pause' : 'Play'}
+          title={
+            isPlaying || isCountdown
+              ? 'Pause (Shortcut: Space)'
+              : 'Play (Shortcut: Space)'
+          }
+        >
+          {isPlaying || isCountdown ? (
+            <>
+              <Pause className="h-4 w-4 mr-2" />
+              Pause
+            </>
+          ) : (
+            <>
+              <Play className="h-4 w-4 mr-2" />
+              Play
+            </>
+          )}
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onNext}
+          disabled={!canPlay}
+          aria-label="Next word"
+          title="Next word (Shortcut: →)"
+        >
+          <SkipForward className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onSkipForward}
+          disabled={!canPlay}
+          aria-label="Next sentence"
+          title="Next sentence (Shortcut: Shift+→)"
+        >
+          <FastForward className="h-4 w-4" />
+        </Button>
+      </div>
+      <div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onRestart}
+          disabled={!canPlay}
+          aria-label="Restart"
+          title="Restart (Shortcut: R)"
+        >
+          <RotateCcw className="h-4 w-4 mr-2" />
+          Restart
+        </Button>
+      </div>
     </div>
   );
 });

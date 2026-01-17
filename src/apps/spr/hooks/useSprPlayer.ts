@@ -99,6 +99,53 @@ function clampIndex(index: number, length: number) {
   return Math.min(Math.max(index, 0), length - 1);
 }
 
+function findPreviousSentenceStart(
+  currentIndex: number,
+  tokens: SprToken[]
+): number {
+  if (tokens.length === 0 || currentIndex <= 0) return 0;
+
+  // Check if we're at a sentence start (token after a sentence end)
+  // If so, we want to go back one more sentence
+  let searchFrom = currentIndex - 1;
+  if (currentIndex > 0 && tokens[currentIndex - 1]?.isSentenceEnd) {
+    // We're already at a sentence start, so search from one token before
+    searchFrom = currentIndex - 2;
+  }
+
+  // Find the last sentence end before the search position
+  for (let i = searchFrom; i >= 0; i--) {
+    if (tokens[i].isSentenceEnd) {
+      // Move to the start of that sentence (token after the sentence end)
+      const nextIndex = i + 1;
+      return nextIndex < tokens.length ? nextIndex : i;
+    }
+  }
+
+  // No sentence end found, go to beginning
+  return 0;
+}
+
+function findNextSentenceStart(
+  currentIndex: number,
+  tokens: SprToken[]
+): number {
+  if (tokens.length === 0) return 0;
+  if (currentIndex >= tokens.length - 1) return tokens.length - 1;
+
+  // Find the next sentence end at or after current index
+  for (let i = currentIndex; i < tokens.length; i++) {
+    if (tokens[i].isSentenceEnd) {
+      // Move to the start of the next sentence (token after the sentence end)
+      const nextIndex = i + 1;
+      return nextIndex < tokens.length ? nextIndex : tokens.length - 1;
+    }
+  }
+
+  // No sentence end found, go to end
+  return tokens.length - 1;
+}
+
 interface UseSprPlayerOptions {
   tokens: SprToken[];
   settings: SprSettings;
@@ -141,7 +188,7 @@ export function useSprPlayer({
 
   useEffect(() => {
     onIndexChangeEvent(state.index);
-  }, [state.index]);
+  }, [state.index]); // eslint-disable-line react-hooks/exhaustive-deps -- onIndexChangeEvent is created with useEffectEvent and is intentionally stable
 
   const stopRaf = useCallback(() => {
     if (rafRef.current !== null) {
@@ -227,7 +274,7 @@ export function useSprPlayer({
     }
 
     return stopRaf;
-  }, [state.status, stopRaf]);
+  }, [state.status, stopRaf]); // eslint-disable-line react-hooks/exhaustive-deps -- Refs (stateRef, tokensRef, settingsRef) are stable and intentionally not included
 
   const actions = useMemo(() => {
     return {
@@ -261,6 +308,28 @@ export function useSprPlayer({
           index: clampIndex(stateRef.current.index + delta, tokensList.length),
         });
       },
+      skipToPreviousSentence: () => {
+        const tokensList = tokensRef.current;
+        const targetIndex = findPreviousSentenceStart(
+          stateRef.current.index,
+          tokensList
+        );
+        dispatch({
+          type: 'setIndex',
+          index: targetIndex,
+        });
+      },
+      skipToNextSentence: () => {
+        const tokensList = tokensRef.current;
+        const targetIndex = findNextSentenceStart(
+          stateRef.current.index,
+          tokensList
+        );
+        dispatch({
+          type: 'setIndex',
+          index: targetIndex,
+        });
+      },
       next: () => {
         const tokensList = tokensRef.current;
         dispatch({
@@ -279,7 +348,7 @@ export function useSprPlayer({
       setStatus: (status: PlayerStatus) =>
         dispatch({ type: 'setStatus', status }),
     };
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- Refs (stateRef, tokensRef, settingsRef) are stable and intentionally not included
 
   return { state, actions };
 }
