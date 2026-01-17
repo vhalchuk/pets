@@ -69,4 +69,20 @@ describe('tokenizeText', () => {
     expect(tokens[2].isClauseEnd).toBe(true);
     expect(tokens[5].isClauseEnd).toBe(true);
   });
+
+  it('splits words with em dashes into separate tokens', () => {
+    const tokens = tokenizeText('browser—that');
+    expect(tokens.map((token) => token.text)).toEqual(['browser—', 'that']);
+  });
+
+  it('splits words with en dashes into separate tokens', () => {
+    const tokens = tokenizeText('page–chapter');
+    expect(tokens.map((token) => token.text)).toEqual(['page–', 'chapter']);
+  });
+
+  it('preserves em dash with trailing punctuation', () => {
+    const tokens = tokenizeText('browser—that.');
+    expect(tokens.map((token) => token.text)).toEqual(['browser—', 'that.']);
+    expect(tokens[1].isSentenceEnd).toBe(true);
+  });
 });

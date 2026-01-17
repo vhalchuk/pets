@@ -5,6 +5,9 @@ const PARAGRAPH_MARKER = '__SPR_PARAGRAPH_BREAK__';
 const SENTENCE_PUNCTUATION = /[.!?]$/;
 const CLAUSE_PUNCTUATION = /[;:]$/;
 
+// Match various dash types: regular hyphen, en dash, em dash
+const DASH_PATTERN = /[-–—]/;
+
 export function tokenizeText(text: string): SprToken[] {
   if (!text.trim()) {
     return [];
@@ -23,10 +26,16 @@ export function tokenizeText(text: string): SprToken[] {
       continue;
     }
 
-    // Split hyphenated words into separate tokens for better pacing
+    // Split words with dashes (hyphen, en dash, em dash) into separate tokens for better pacing
     // e.g., "instruction-by-instruction" -> ["instruction-", "by-", "instruction"]
-    if (rawToken.includes('-')) {
-      const parts = rawToken.split('-');
+    // e.g., "browser—that" -> ["browser—", "that"]
+    if (DASH_PATTERN.test(rawToken)) {
+      // Find the first dash and its type
+      const dashMatch = rawToken.match(DASH_PATTERN);
+      const dashChar = dashMatch ? dashMatch[0] : '-';
+
+      // Split on any dash type
+      const parts = rawToken.split(DASH_PATTERN);
       // Preserve trailing punctuation on the last segment only
       const lastPart = parts[parts.length - 1];
       const hasTrailingPunctuation = /[.!?,;:]$/.test(lastPart);
@@ -36,8 +45,8 @@ export function tokenizeText(text: string): SprToken[] {
         if (!part) continue; // Skip empty parts
 
         const isLast = i === parts.length - 1;
-        // Keep hyphen on all segments except the last for visual clarity
-        const tokenText = isLast ? part : `${part}-`;
+        // Keep dash on all segments except the last for visual clarity
+        const tokenText = isLast ? part : `${part}${dashChar}`;
 
         tokens.push({
           text: tokenText,
