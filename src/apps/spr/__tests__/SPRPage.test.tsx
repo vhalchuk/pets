@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/globals" />
 
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';

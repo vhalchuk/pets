@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import type { LayoutMode, OrpMode, ThemePreset } from '../types';
 import { getOrpIndex } from '../lib/orp';

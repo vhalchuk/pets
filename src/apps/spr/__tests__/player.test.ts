@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+/// <reference types="vitest/globals" />
 
 import { renderHook, act } from '@testing-library/react';
 import { useSprPlayer } from '../hooks/useSprPlayer';
@@ -50,17 +50,17 @@ const tokens: SprToken[] = [
 
 beforeEach(() => {
   vi.useFakeTimers();
-  global.requestAnimationFrame = (cb: FrameRequestCallback) => {
+  globalThis.requestAnimationFrame = (cb: FrameRequestCallback) => {
     return window.setTimeout(
       () => cb(performance.now()),
       16
     ) as unknown as number;
   };
-  global.cancelAnimationFrame = (id: number) => {
+  globalThis.cancelAnimationFrame = (id: number) => {
     window.clearTimeout(id as unknown as number);
   };
-  window.requestAnimationFrame = global.requestAnimationFrame;
-  window.cancelAnimationFrame = global.cancelAnimationFrame;
+  window.requestAnimationFrame = globalThis.requestAnimationFrame;
+  window.cancelAnimationFrame = globalThis.cancelAnimationFrame;
 });
 
 afterEach(() => {
