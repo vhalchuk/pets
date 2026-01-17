@@ -36,11 +36,11 @@ describe('tokenizeText', () => {
     expect(tokens[1].isClauseEnd).toBe(true);
   });
 
-  it('splits hyphenated words into separate tokens', () => {
+  it('splits hyphenated words into separate tokens, preserving hyphens', () => {
     const tokens = tokenizeText('instruction-by-instruction');
     expect(tokens.map((token) => token.text)).toEqual([
-      'instruction',
-      'by',
+      'instruction-',
+      'by-',
       'instruction',
     ]);
   });
@@ -48,9 +48,9 @@ describe('tokenizeText', () => {
   it('preserves trailing punctuation on hyphenated words', () => {
     const tokens = tokenizeText('state-of-the-art.');
     expect(tokens.map((token) => token.text)).toEqual([
-      'state',
-      'of',
-      'the',
+      'state-',
+      'of-',
+      'the-',
       'art.',
     ]);
     expect(tokens[3].isSentenceEnd).toBe(true);
@@ -59,11 +59,11 @@ describe('tokenizeText', () => {
   it('handles hyphenated words with clause punctuation', () => {
     const tokens = tokenizeText('word-by-word; step-by-step:');
     expect(tokens.map((token) => token.text)).toEqual([
-      'word',
-      'by',
+      'word-',
+      'by-',
       'word;',
-      'step',
-      'by',
+      'step-',
+      'by-',
       'step:',
     ]);
     expect(tokens[2].isClauseEnd).toBe(true);

@@ -24,7 +24,7 @@ export function tokenizeText(text: string): SprToken[] {
     }
 
     // Split hyphenated words into separate tokens for better pacing
-    // e.g., "instruction-by-instruction" -> ["instruction", "by", "instruction"]
+    // e.g., "instruction-by-instruction" -> ["instruction-", "by-", "instruction"]
     if (rawToken.includes('-')) {
       const parts = rawToken.split('-');
       // Preserve trailing punctuation on the last segment only
@@ -36,7 +36,8 @@ export function tokenizeText(text: string): SprToken[] {
         if (!part) continue; // Skip empty parts
 
         const isLast = i === parts.length - 1;
-        const tokenText = part;
+        // Keep hyphen on all segments except the last for visual clarity
+        const tokenText = isLast ? part : `${part}-`;
 
         tokens.push({
           text: tokenText,
