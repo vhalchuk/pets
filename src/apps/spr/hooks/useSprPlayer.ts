@@ -1,5 +1,13 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useEffectEvent,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
 import type { PlayerStatus, SprSettings, SprToken } from '../types';
+import { useLatestRef } from '@/hooks/useLatestRef';
 
 const requestFrame = (callback: FrameRequestCallback) => {
   if (typeof globalThis.requestAnimationFrame === 'function') {
@@ -110,25 +118,13 @@ export function useSprPlayer({
     countdown: 0,
   });
 
-  const stateRef = useRef(state);
-  const tokensRef = useRef(tokens);
-  const settingsRef = useRef(settings);
+  const stateRef = useLatestRef(state);
+  const tokensRef = useLatestRef(tokens);
+  const settingsRef = useLatestRef(settings);
   const rafRef = useRef<number | null>(null);
   const lastTickRef = useRef(0);
   const carryRef = useRef(0);
   const countdownCarryRef = useRef(0);
-
-  useEffect(() => {
-    stateRef.current = state;
-  }, [state]);
-
-  useEffect(() => {
-    tokensRef.current = tokens;
-  }, [tokens]);
-
-  useEffect(() => {
-    settingsRef.current = settings;
-  }, [settings]);
 
   useEffect(() => {
     if (stateRef.current.index !== initialIndex) {
@@ -137,11 +133,15 @@ export function useSprPlayer({
         index: clampIndex(initialIndex, tokens.length),
       });
     }
-  }, [initialIndex, tokens.length]);
+  }, [initialIndex, tokens.length, stateRef]);
+
+  const onIndexChangeEvent = useEffectEvent((index: number) => {
+    onIndexChange?.(index);
+  });
 
   useEffect(() => {
-    onIndexChange?.(state.index);
-  }, [state.index, onIndexChange]);
+    onIndexChangeEvent(state.index);
+  }, [state.index]);
 
   const stopRaf = useCallback(() => {
     if (rafRef.current !== null) {
