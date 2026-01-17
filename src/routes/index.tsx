@@ -10,6 +10,11 @@ const projects = [
     path: '/chords',
     description: 'Music theory and chord progression tool',
   },
+  {
+    name: 'SPR',
+    path: '/spr',
+    description: 'Speed Reading',
+  },
   // Add more projects here as you create them
 ];
 

@@ -78,3 +78,24 @@ pets/
 ├── vite.config.ts       # Vite configuration
 └── README.md            # This file
 ```
+
+## SPR (Speed Reading Presenter)
+
+The SPR module lives at `/spr` and provides a customizable, one-word-at-a-time
+reading experience.
+
+### Highlights
+
+- Adjustable speed (50–1200 WPM) with live updates
+- ORP (Optimal Recognition Point) highlight modes
+- Punctuation and paragraph pause multipliers
+- Layout options (compact/focus) and theme presets
+- Keyboard shortcuts
+
+### Persistence
+
+SPR stores everything in `localStorage` under a single namespace:
+
+- `spr:settings` for reader preferences
+- `spr:history` for recent texts (up to 10)
+- `spr:session` for the last active text and position
