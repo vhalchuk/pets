@@ -18,9 +18,9 @@ const fontFamilyClasses = {
 
 interface ReaderStageProps {
   token: string | null;
-  prevToken?: string | null;
-  nextToken?: string | null;
-  showGhostPreview: boolean;
+  contextEnabled: boolean;
+  contextBefore: string;
+  contextAfter: string;
   orpEnabled: boolean;
   orpMode: OrpMode;
   fontSize: number;
@@ -34,9 +34,9 @@ interface ReaderStageProps {
 
 function ReaderStageComponent({
   token,
-  prevToken,
-  nextToken,
-  showGhostPreview,
+  contextEnabled,
+  contextBefore,
+  contextAfter,
   orpEnabled,
   orpMode,
   fontSize,
@@ -60,6 +60,10 @@ function ReaderStageComponent({
   }, [orpEnabled, orpMode, stageToken]);
 
   const stageHeight = layoutMode === 'focus' ? 'min-h-[40vh]' : 'min-h-[24vh]';
+  const contextHeight =
+    layoutMode === 'focus'
+      ? 'min-h-[4.5rem] max-h-[4.5rem]'
+      : 'min-h-[3.5rem] max-h-[3.5rem]';
 
   return (
     <div
@@ -73,41 +77,55 @@ function ReaderStageComponent({
       aria-live="polite"
       aria-label="Reader stage"
     >
-      {showGhostPreview && (
-        <div className="absolute left-6 top-6 text-sm text-muted-foreground">
-          {prevToken || ' '}
+      <div className="flex w-full flex-col items-center justify-center gap-6">
+        <div
+          className={cn(
+            'w-full px-6 text-center text-sm text-muted-foreground overflow-hidden',
+            contextHeight
+          )}
+          aria-hidden={!contextEnabled}
+        >
+          <p className="leading-snug">
+            {contextEnabled && contextBefore ? contextBefore : ''}
+          </p>
         </div>
-      )}
-      {showGhostPreview && (
-        <div className="absolute right-6 top-6 text-sm text-muted-foreground">
-          {nextToken || ' '}
+        <div
+          className={cn(
+            'w-full px-6 text-center font-semibold tracking-wide',
+            fontFamilyClasses[fontFamily]
+          )}
+          style={{
+            fontSize,
+            lineHeight,
+          }}
+        >
+          {countdown > 0 ? (
+            <span className="tabular-nums">{countdown}</span>
+          ) : stageToken && orpEnabled ? (
+            <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+              <span className="text-right whitespace-pre">{prefix}</span>
+              <span className="text-red-500 whitespace-pre">{highlight}</span>
+              <span className="text-left whitespace-pre">{suffix}</span>
+            </div>
+          ) : stageToken ? (
+            <span className="block text-center">{stageToken}</span>
+          ) : (
+            <span className="text-muted-foreground text-base font-normal">
+              Paste or load text to begin
+            </span>
+          )}
         </div>
-      )}
-      <div
-        className={cn(
-          'w-full px-6 text-center font-semibold tracking-wide',
-          fontFamilyClasses[fontFamily]
-        )}
-        style={{
-          fontSize,
-          lineHeight,
-        }}
-      >
-        {countdown > 0 ? (
-          <span className="tabular-nums">{countdown}</span>
-        ) : stageToken && orpEnabled ? (
-          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
-            <span className="text-right whitespace-pre">{prefix}</span>
-            <span className="text-red-500 whitespace-pre">{highlight}</span>
-            <span className="text-left whitespace-pre">{suffix}</span>
-          </div>
-        ) : stageToken ? (
-          <span className="block text-center">{stageToken}</span>
-        ) : (
-          <span className="text-muted-foreground text-base font-normal">
-            Paste or load text to begin
-          </span>
-        )}
+        <div
+          className={cn(
+            'w-full px-6 text-center text-sm text-muted-foreground overflow-hidden',
+            contextHeight
+          )}
+          aria-hidden={!contextEnabled}
+        >
+          <p className="leading-snug">
+            {contextEnabled && contextAfter ? contextAfter : ''}
+          </p>
+        </div>
       </div>
     </div>
   );

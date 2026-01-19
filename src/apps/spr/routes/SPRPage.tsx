@@ -22,7 +22,7 @@ import {
 } from '../lib/storage';
 import { useSprPlayer } from '../hooks/useSprPlayer';
 import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
-import type { SprHistoryItem, SprSettings } from '../types';
+import type { SprHistoryItem, SprSettings, SprToken } from '../types';
 import { ReaderStage } from '../components/ReaderStage';
 import { Controls } from '../components/Controls';
 import { SettingsPanel } from '../components/SettingsPanel';
@@ -56,6 +56,69 @@ function isFormTarget(target: EventTarget | null) {
     tag === 'select' ||
     target.isContentEditable
   );
+}
+
+function buildSentenceContext(
+  tokens: SprToken[],
+  index: number,
+  sentenceCount: number
+) {
+  if (tokens.length === 0) {
+    return { before: '', after: '' };
+  }
+
+  const clampedIndex = Math.min(Math.max(index, 0), tokens.length - 1);
+  const ranges: Array<{ start: number; end: number }> = [];
+  let sentenceStart = 0;
+
+  for (let i = 0; i < tokens.length; i += 1) {
+    const isEnd = tokens[i].isSentenceEnd || i === tokens.length - 1;
+    if (isEnd) {
+      ranges.push({ start: sentenceStart, end: i });
+      sentenceStart = i + 1;
+    }
+  }
+
+  const sentenceIndex = ranges.findIndex(
+    (range) => clampedIndex >= range.start && clampedIndex <= range.end
+  );
+  if (sentenceIndex === -1) {
+    return { before: '', after: '' };
+  }
+
+  const joinRange = (range: { start: number; end: number }) =>
+    tokens
+      .slice(range.start, range.end + 1)
+      .map((token) => token.text)
+      .join(' ');
+
+  const beforeSentences = ranges
+    .slice(Math.max(0, sentenceIndex - sentenceCount), sentenceIndex)
+    .map(joinRange)
+    .join(' ');
+
+  const afterSentences = ranges
+    .slice(sentenceIndex + 1, sentenceIndex + 1 + sentenceCount)
+    .map(joinRange)
+    .join(' ');
+
+  const currentRange = ranges[sentenceIndex];
+  const beforeCurrent = tokens
+    .slice(currentRange.start, clampedIndex)
+    .map((token) => token.text)
+    .join(' ');
+  const afterCurrent = tokens
+    .slice(clampedIndex + 1, currentRange.end + 1)
+    .map((token) => token.text)
+    .join(' ');
+
+  const beforeParts = [beforeSentences, beforeCurrent].filter(Boolean);
+  const afterParts = [afterCurrent, afterSentences].filter(Boolean);
+
+  return {
+    before: beforeParts.join(' '),
+    after: afterParts.join(' '),
+  };
 }
 
 export function SPRPage() {
@@ -169,8 +232,11 @@ export function SPRPage() {
 
   const canPlay = wordCount > 0;
   const currentToken = tokens[state.index]?.text ?? null;
-  const prevToken = tokens[state.index - 1]?.text ?? null;
-  const nextToken = tokens[state.index + 1]?.text ?? null;
+  const sentenceContext = useMemo(
+    () =>
+      buildSentenceContext(tokens, state.index, settings.contextSentenceCount),
+    [settings.contextSentenceCount, state.index, tokens]
+  );
 
   const handlePlay = useCallback(() => {
     if (!text.trim()) {
@@ -258,6 +324,14 @@ export function SPRPage() {
         const nextWpm = updates.wpm ?? prev.wpm;
         const safeWpm = Number.isFinite(nextWpm) ? nextWpm : prev.wpm;
         return Math.min(prev.maxWpm, Math.max(prev.minWpm, safeWpm));
+      })(),
+      contextSentenceCount: (() => {
+        const nextCount =
+          updates.contextSentenceCount ?? prev.contextSentenceCount;
+        const safeCount = Number.isFinite(nextCount)
+          ? nextCount
+          : prev.contextSentenceCount;
+        return Math.min(5, Math.max(1, safeCount));
       })(),
     }));
   }, []);
@@ -370,9 +444,9 @@ export function SPRPage() {
           <CardContent className="space-y-6">
             <ReaderStage
               token={currentToken}
-              prevToken={prevToken}
-              nextToken={nextToken}
-              showGhostPreview={settings.showGhostPreview}
+              contextEnabled={settings.contextEnabled}
+              contextBefore={sentenceContext.before}
+              contextAfter={sentenceContext.after}
               orpEnabled={settings.orpEnabled}
               orpMode={settings.orpMode}
               fontSize={settings.fontSize}

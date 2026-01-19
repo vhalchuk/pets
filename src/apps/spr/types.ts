@@ -19,13 +19,14 @@ export interface SprSettings {
   skipSize: number;
   orpEnabled: boolean;
   orpMode: OrpMode;
+  contextEnabled: boolean;
+  contextSentenceCount: number;
   pauseOnPunctuation: boolean;
   sentencePauseMultiplier: number;
   clausePauseMultiplier: number;
   pauseOnParagraph: boolean;
   paragraphPauseMultiplier: number;
   warmupEnabled: boolean;
-  showGhostPreview: boolean;
   showProgressBar: boolean;
   layoutMode: LayoutMode;
   fontSize: number;

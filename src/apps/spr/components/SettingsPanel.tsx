@@ -25,12 +25,12 @@ export function SettingsPanel({
         <label className="flex items-center gap-3 text-sm">
           <input
             type="checkbox"
-            checked={settings.showGhostPreview}
+            checked={settings.contextEnabled}
             onChange={(event) =>
-              onChange({ showGhostPreview: event.target.checked })
+              onChange({ contextEnabled: event.target.checked })
             }
           />
-          Ghost Preview
+          Sentence context
         </label>
         <label className="flex items-center gap-3 text-sm">
           <input
@@ -52,6 +52,33 @@ export function SettingsPanel({
           />
           Warm-up Countdown
         </label>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <div>
+          <label
+            className="text-sm font-medium"
+            title="How many sentences to show before and after the current word."
+          >
+            Sentences on each side
+          </label>
+          <input
+            type="number"
+            min={1}
+            max={5}
+            value={settings.contextSentenceCount}
+            onChange={(event) =>
+              onChange({
+                contextSentenceCount: Math.min(
+                  5,
+                  Math.max(1, Number(event.target.value))
+                ),
+              })
+            }
+            disabled={!settings.contextEnabled}
+            className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground disabled:opacity-60"
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">

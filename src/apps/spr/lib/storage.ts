@@ -13,13 +13,14 @@ export const DEFAULT_SETTINGS: SprSettings = {
   skipSize: 10,
   orpEnabled: true,
   orpMode: 'medium',
+  contextEnabled: false,
+  contextSentenceCount: 2,
   pauseOnPunctuation: true,
   sentencePauseMultiplier: 2.4,
   clausePauseMultiplier: 1.6,
   pauseOnParagraph: true,
   paragraphPauseMultiplier: 2.5,
   warmupEnabled: true,
-  showGhostPreview: true,
   showProgressBar: true,
   layoutMode: 'compact',
   fontSize: 48,
@@ -45,11 +46,19 @@ export function loadSettings(): SprSettings {
   const merged = { ...DEFAULT_SETTINGS, ...stored };
   const maxWpm = Math.min(merged.maxWpm, DEFAULT_SETTINGS.maxWpm);
   const minWpm = Math.max(merged.minWpm, DEFAULT_SETTINGS.minWpm);
+  const contextSentenceCount = Math.min(
+    5,
+    Math.max(
+      1,
+      merged.contextSentenceCount ?? DEFAULT_SETTINGS.contextSentenceCount
+    )
+  );
   return {
     ...merged,
     minWpm,
     maxWpm,
     wpm: Math.min(maxWpm, Math.max(minWpm, merged.wpm)),
+    contextSentenceCount,
   };
 }
 
